@@ -81,9 +81,9 @@ wss.on("connection", (ws) => {
                     return;
                 }
             } else if (msg.type === "create-room") {
-                const newRoomId = msg.newRoomId;
-                rooms.set(newRoomId, new Map());
-                const map = rooms.get(newRoomId)
+                const roomId = msg.roomId;
+                rooms.set(roomId, new Map());
+                const map = rooms.get(roomId)
                 map.set(ws, "sender");
                 ws.send(JSON.stringify({
                     type: "room-created",
