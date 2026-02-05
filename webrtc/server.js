@@ -36,41 +36,60 @@ wss.on("connection", (ws) => {
 
             if (msg.type === "join") {
                 const roomId = msg.roomId;
-                if (!rooms.has(roomId)) {
-                    rooms.set(roomId, new Set());
-                }
-                const set = rooms.get(roomId)
 
-                if (set.size < 2) {
-                    set.add(ws);
-                    if (set.size === 2) {
-                        for (const client of set) {
-                            if (client !== ws) {
-                                client.send(JSON.stringify({
-                                    type: "peer-joined",
-                                    message: "the receiver joined bussi",
-                                    roomId
-                                }));
+                if (rooms.has(roomId)) {
+
+                    const map = rooms.get(roomId)
+
+                    if (map.size < 2) {
+                        map.add(ws, "receiver");
+                        if (map.size === 2) {
+                            //keys of the map ergo ws
+                            for (const client of map.keys) {
+                                if (client !== ws) {
+                                    client.send(JSON.stringify({
+                                        type: "peer-joined",
+                                        message: "the receiver joined bussi",
+                                        roomId
+                                    }));
+                                }
                             }
                         }
+                        console.log("client joined room " + roomId);
+                        ws.send(JSON.stringify({
+                            type: "success",
+                            message: "successfully joined room",
+                            roomId
+                        }))
+                    } else {
+                        ws.send(JSON.stringify({
+                            type: "error",
+                            message: "already 2 people in server",
+                            roomId
+                        }));
+
+                        ws.close(1008, "Room is full");
+                        return;
                     }
-                    console.log("client joined room " + roomId);
-                    ws.send(JSON.stringify({
-                        type: "success",
-                        message: "successfully joined room",
-                        roomId
-                    }))
                 } else {
                     ws.send(JSON.stringify({
                         type: "error",
-                        message: "already 2 people in server",
+                        message: "no such room available",
                         roomId
                     }));
-
-                    ws.close(1008, "Room is full");
+                    ws.close(1008, "no such room");
                     return;
                 }
-
+            } else if (msg.type === "create-room") {
+                const newRoomId = msg.newRoomId;
+                rooms.set(newRoomId, new Map());
+                const map = rooms.get(newRoomId)
+                map.set(ws, "sender");
+                ws.send(JSON.stringify({
+                    type: "room-created",
+                    roomId: newRoomId,
+                    yourRole: "sender"
+                }))
             }
         } catch (error) {
             console.error(error.message);
