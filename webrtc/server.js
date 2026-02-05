@@ -42,7 +42,7 @@ wss.on("connection", (ws) => {
                     const map = rooms.get(roomId)
 
                     if (map.size < 2) {
-                        map.add(ws, "receiver");
+                        map.set(ws, "receiver");
                         if (map.size === 2) {
                             //keys of the map ergo ws
                             for (const client of map.keys) {
