@@ -87,7 +87,7 @@ wss.on("connection", (ws) => {
                 map.set(ws, "sender");
                 ws.send(JSON.stringify({
                     type: "room-created",
-                    roomId: newRoomId,
+                    roomId,
                     yourRole: "sender"
                 }))
             }
