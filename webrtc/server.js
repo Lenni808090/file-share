@@ -48,6 +48,7 @@ wss.on("connection", (ws) => {
                     type: "success",
                     message: "successfully joined room",
                     roomId,
+                    senderRole: "server",
                 }),
                 );
 
@@ -65,6 +66,7 @@ wss.on("connection", (ws) => {
                     message,
                     roomId,
                     peerrole: clientRole === "sender" ? "receiver" : "sender",
+                    senderRole: map.get(ws),
                   }),
                 );
               }
@@ -77,6 +79,7 @@ wss.on("connection", (ws) => {
                 type: "error",
                 message: "already 2 people in server",
                 roomId,
+                senderRole: "server",
               }),
             );
 
@@ -89,6 +92,7 @@ wss.on("connection", (ws) => {
               type: "error",
               message: "no such room available",
               roomId,
+              senderRole: "server",
             }),
           );
           ws.close(1008, "no such room");
@@ -104,6 +108,7 @@ wss.on("connection", (ws) => {
             type: "room-created",
             roomId,
             yourRole: "sender",
+            senderRole: "server",
           }),
         );
       } else if(["offer", "answer", "candidate"].includes(msg.type)){ // if the type is offer answer or candidate just relay it to the other client in the room
@@ -119,7 +124,7 @@ wss.on("connection", (ws) => {
 
         for(const client of room.keys()){
             if(client !== ws){
-                client.send(JSON.stringify(msg));
+                client.send(JSON.stringify({ ...msg, senderRole: room.get(ws) }));
             }
         }
       }
