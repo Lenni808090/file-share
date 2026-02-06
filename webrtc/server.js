@@ -45,7 +45,7 @@ wss.on("connection", (ws) => {
                         map.set(ws, "receiver");
                         if (map.size === 2) {
                             //keys of the map ergo ws
-                            for (const client of map.keys) {
+                            for (const client of map.keys()) {
                                 if (client !== ws) {
                                     client.send(JSON.stringify({
                                         type: "peer-joined",
