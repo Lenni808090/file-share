@@ -106,6 +106,22 @@ wss.on("connection", (ws) => {
             yourRole: "sender",
           }),
         );
+      } else if(["offer", "answer", "candidate"].includes(msg.type)){ // if the type is offer answer or candidate just relay it to the other client in the room
+        
+        if(!msg.roomId){
+            return;
+        }
+
+        const room = rooms.get(msg.roomId)
+        if(!room){
+            return;
+        }
+
+        for(const client of room.keys()){
+            if(client !== ws){
+                client.send(JSON.stringify(msg));
+            }
+        }
       }
     } catch (error) {
       console.error(error.message);
