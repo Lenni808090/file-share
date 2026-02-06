@@ -46,14 +46,20 @@ wss.on("connection", (ws) => {
                         if (map.size === 2) {
                             //keys of the map ergo ws
                             for (const client of map.keys()) {
-                                if (client !== ws) {
-                                    client.send(JSON.stringify({
-                                        type: "peer-joined",
-                                        message: "the receiver joined bussi",
-                                        roomId
-                                    }));
+                                const clientRole = map.get(client);
+                                let message;
+                                if (clientRole === "sender") {
+                                    message= "receiver joined"
+                                }else if(clientRole == "receiver"){
+                                    message = "sender is here"
                                 }
                             }
+                            client.send(JSON.stringify({
+                                type:"peer-joined",
+                                message,
+                                roomId,
+                                peerrole: clientRole === "sender" ? "receiver" : "sender",
+                            }))
                         }
                         console.log("client joined room " + roomId);
                         ws.send(JSON.stringify({
