@@ -43,6 +43,14 @@ wss.on("connection", (ws) => {
             map.set(ws, "receiver");
             if (map.size === 2) {
               //keys of the map ergo ws
+                ws.send(
+                JSON.stringify({
+                    type: "success",
+                    message: "successfully joined room",
+                    roomId,
+                }),
+                );
+
               for (const client of map.keys()) {
                 const clientRole = map.get(client);
                 let message;
@@ -62,13 +70,7 @@ wss.on("connection", (ws) => {
               }
             }
             console.log("client joined room " + roomId);
-            ws.send(
-              JSON.stringify({
-                type: "success",
-                message: "successfully joined room",
-                roomId,
-              }),
-            );
+            
           } else {
             ws.send(
               JSON.stringify({
